@@ -1,0 +1,21 @@
+Metadata-Version: 2.4
+Name: organix-backend
+Version: 0.1.0
+Summary: Personal Finance Backend API
+Requires-Python: >=3.13
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.110.0
+Requires-Dist: uvicorn[standard]>=0.28.0
+Requires-Dist: sqlmodel>=0.0.22
+Requires-Dist: asyncpg>=0.29.0
+Requires-Dist: alembic>=1.13.0
+Requires-Dist: pydantic-settings>=2.2.0
+Requires-Dist: pyjwt[crypto]>=2.8.0
+Requires-Dist: bcrypt>=4.1.0
+Requires-Dist: greenlet>=3.0.0
+Requires-Dist: email-validator>=2.0.0
+Requires-Dist: python-multipart>=0.0.7
+
+# Organix Finance Backend API
+
+Personal Finance Backend built with Python, FastAPI, SQLModel, PostgreSQL, Alembic, and Pytest.
