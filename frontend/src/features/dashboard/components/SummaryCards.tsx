@@ -64,16 +64,6 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ summary, prevSummary
 
   const cards = [
     {
-      title: "Receitas",
-      value: summary.total_income,
-      HeaderIcon: ArrowDownRight,
-      headerIconColor: "text-success",
-      previousValue: prevIncome,
-      percentage: incomePercentage.text,
-      percentageColor: incomePercentage.color,
-      link: "/incomes"
-    },
-    {
       title: "Despesas",
       value: summary.total_expense,
       HeaderIcon: ArrowUpRight,
@@ -82,6 +72,16 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ summary, prevSummary
       percentage: expensePercentage.text,
       percentageColor: expensePercentage.color,
       link: "/expenses"
+    },
+    {
+      title: "Receitas",
+      value: summary.total_income,
+      HeaderIcon: ArrowDownRight,
+      headerIconColor: "text-success",
+      previousValue: prevIncome,
+      percentage: incomePercentage.text,
+      percentageColor: incomePercentage.color,
+      link: "/incomes"
     }
   ];
 

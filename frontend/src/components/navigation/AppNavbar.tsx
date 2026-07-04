@@ -80,9 +80,22 @@ export const AppNavbar: React.FC = () => {
         {/* User Actions */}
         <div className="flex items-center gap-2">
           {user && (
-            <div className="hidden md:flex flex-col items-end mr-2 px-2">
-              <span className="text-sm font-semibold leading-none">{user.name}</span>
-              <span className="text-xs text-muted-foreground mt-1 leading-none">{user.email}</span>
+            <div className="hidden md:flex items-center gap-3 mr-2 px-2">
+              <div className="flex flex-col items-end">
+                <span className="text-sm font-semibold leading-none">{user.name}</span>
+                <span className="text-xs text-muted-foreground mt-1 leading-none">{user.email}</span>
+              </div>
+              {user.icon ? (
+                <img 
+                  src={`/avatars/${user.icon}`} 
+                  alt={user.name} 
+                  className="size-9 rounded-full border-2 border-border object-cover bg-muted" 
+                />
+              ) : (
+                <div className="size-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-sm">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
           )}
           

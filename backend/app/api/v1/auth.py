@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.users import User
-from app.schemas.users import UserCreate, UserRead, Token
+from app.schemas.users import UserCreate, UserRead, Token, UserUpdate
 from app.services.user import UserService
 from app.core.security import create_access_token
 
@@ -34,3 +34,14 @@ async def login(
 async def get_me(current_user: User = Depends(get_current_user)):
     """Fetches credentials and data for the currently authenticated user."""
     return current_user
+
+
+@router.patch("/me", response_model=UserRead)
+async def update_me(
+    user_update: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    """Updates the currently authenticated user's profile."""
+    user_service = UserService(session)
+    return await user_service.update_user(current_user.user_id, user_update)
