@@ -328,7 +328,16 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
                 <SelectContent>
                   {paymentMethods.map((pm: any) => (
                     <SelectItem key={pm.payment_method_id} value={pm.payment_method_id}>
-                      {pm.name}
+                      <div className="flex items-center gap-2">
+                        {pm.icon && pm.icon.endsWith('.png') && (
+                          <img 
+                            src={`/payment-method-logos/${pm.icon}`} 
+                            alt="" 
+                            className="w-4 h-4 object-contain shrink-0 rounded-full ring-1 ring-border bg-white"
+                          />
+                        )}
+                        <span>{pm.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

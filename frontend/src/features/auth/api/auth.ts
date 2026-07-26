@@ -31,7 +31,7 @@ export const authApi = {
     return response.data;
   },
 
-  updateProfile: async (payload: { icon?: string; name?: string; email?: string }) => {
+  updateProfile: async (payload: { icon?: string; name?: string; email?: string; monthly_budget?: number | null }) => {
     const response = await apiClient.patch("/auth/me", payload);
     return response.data;
   },

@@ -13,6 +13,7 @@ interface GlobalState {
     email: string;
     name: string;
     icon?: string;
+    monthly_budget?: number;
   } | null;
   activeDateFilter: ActiveDateFilter;
   setThemeMode: (mode: "light" | "dark") => void;

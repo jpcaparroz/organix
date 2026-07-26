@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.dependencies.database import get_db
 from app.api.dependencies.auth import get_current_user
 from app.models.users import User
-from app.schemas.dashboard import DashboardSummary, ExpensesByCategoryResponse
+from app.schemas.dashboard import DashboardSummary, ExpensesByCategoryResponse, ExpensesByMonthCategoryResponse
 from app.services.dashboard import DashboardService
 
 router = APIRouter()
@@ -38,4 +38,17 @@ async def get_expenses_by_category(
         user_id=current_user.user_id,
         year=year,
         month=month,
+    )
+
+@router.get("/expenses-by-month-category", response_model=ExpensesByMonthCategoryResponse)
+async def get_expenses_by_month_category(
+    year: int = Query(..., ge=1900, le=2100),
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    """Retrieves expenses grouped by month and category for a specific year."""
+    service = DashboardService(session)
+    return await service.get_expenses_by_month_category(
+        user_id=current_user.user_id,
+        year=year,
     )

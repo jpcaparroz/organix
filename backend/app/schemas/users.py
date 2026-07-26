@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     email: EmailStr
     name: str = Field(min_length=1, max_length=100)
     icon: Optional[str] = None
+    monthly_budget: Optional[float] = None
 
 
 class UserCreate(UserBase):
@@ -19,6 +20,7 @@ class UserUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=100)
     password: Optional[str] = Field(default=None, min_length=6, max_length=100)
     icon: Optional[str] = None
+    monthly_budget: Optional[float] = None
 
 
 class UserRead(UserBase):

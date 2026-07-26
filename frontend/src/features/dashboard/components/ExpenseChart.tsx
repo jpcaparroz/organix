@@ -1,5 +1,19 @@
-import React from "react";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import React, { useMemo } from "react";
+import { PieChart, Pie, LabelList } from "recharts";
+import { 
+  type ChartConfig, 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent, 
+  ChartLegend, 
+  ChartLegendContent 
+} from "../../../components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
 
 interface ExpenseChartProps {
   chartData: {
@@ -16,6 +30,35 @@ interface ExpenseChartProps {
 export const ExpenseChart: React.FC<ExpenseChartProps> = ({ chartData }) => {
   const data = chartData.items || [];
 
+  const defaultColors = [
+    "#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6",
+  ];
+
+  const chartConfig = useMemo(() => {
+    const config: ChartConfig = {
+      value: { label: "Despesas" }
+    };
+    data.forEach((item, idx) => {
+      const key = item.category_name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      config[key] = {
+        label: item.category_name,
+        color: item.color_hex || defaultColors[idx % defaultColors.length],
+      };
+    });
+    return config;
+  }, [data]);
+
+  const formattedData = useMemo(() => {
+    return data.map((item) => {
+      const key = item.category_name.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      return {
+        name: key,
+        value: parseFloat(item.amount as any),
+        fill: `var(--color-${key})`,
+      };
+    });
+  }, [data]);
+
   if (data.length === 0) {
     return (
       <div className="bg-card border border-border rounded-3xl p-8 min-h-[300px] flex items-center justify-center text-center shadow-sm">
@@ -24,41 +67,15 @@ export const ExpenseChart: React.FC<ExpenseChartProps> = ({ chartData }) => {
     );
   }
 
-  // Predefined colors
-  const defaultColors = [
-    "#3b82f6", // blue-500
-    "#ef4444", // red-500
-    "#10b981", // emerald-500
-    "#f59e0b", // amber-500
-    "#8b5cf6", // violet-500
-  ];
-
-  const formattedData = data.map((item, idx) => ({
-    name: item.category_name,
-    value: parseFloat(item.amount as any),
-    color: item.color_hex || defaultColors[idx % defaultColors.length],
-  }));
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-popover text-popover-foreground p-3 border border-border rounded-lg shadow-md">
-          <p className="font-semibold text-sm">{payload[0].name}</p>
-          <p className="text-destructive font-medium text-sm mt-1">
-            $ {payload[0].value.toFixed(2)}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
-    <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
-      <h3 className="text-lg font-bold mb-4">Expenses by Category</h3>
-      <div className="w-full h-[300px]">
-        <ResponsiveContainer>
+    <Card className="rounded-3xl shadow-sm border-border flex flex-col h-full">
+      <CardHeader className="pb-2">
+        <CardTitle>Despesas por Categoria</CardTitle>
+      </CardHeader>
+      <CardContent className="flex-1 pb-4">
+        <ChartContainer config={chartConfig} className="w-full h-[300px]">
           <PieChart>
+            <ChartTooltip content={<ChartTooltipContent hideLabel />} />
             <Pie
               data={formattedData}
               cx="50%"
@@ -67,16 +84,22 @@ export const ExpenseChart: React.FC<ExpenseChartProps> = ({ chartData }) => {
               outerRadius={80}
               paddingAngle={2}
               dataKey="value"
+              nameKey="name"
             >
-              {formattedData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
+              <LabelList
+                dataKey="value"
+                position="outside"
+                className="fill-foreground"
+                fontSize={10}
+                formatter={(value: number) => `$${value}`}
+              />
             </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend verticalAlign="bottom" height={36} />
+            <ChartLegend 
+              content={<ChartLegendContent className="flex-wrap gap-2 justify-center" />} 
+            />
           </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };

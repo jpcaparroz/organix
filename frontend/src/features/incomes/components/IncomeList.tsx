@@ -28,6 +28,9 @@ import {
   DialogTitle,
 } from "../../../components/ui/dialog";
 import { Pencil, Trash2, Loader2, Copy } from "lucide-react";
+import { IconRenderer } from "../../../components/ui/icon-selector";
+
+import { Skeleton } from "../../../components/ui/skeleton";
 
 export const IncomeList: React.FC = () => {
   const queryClient = useQueryClient();
@@ -62,6 +65,15 @@ export const IncomeList: React.FC = () => {
     queryKey: ["income_categories"],
     queryFn: settingsApi.listIncomeCategories,
   });
+
+  const { data: paymentMethods = [] } = useQuery({
+    queryKey: ["payment_methods"],
+    queryFn: settingsApi.listPaymentMethods,
+  });
+
+  const getPaymentMethod = (id: string) => {
+    return paymentMethods.find((pm: any) => pm.payment_method_id === id);
+  };
 
   const { data: incomesData, isLoading } = useQuery({
     queryKey: ["incomes", startDate, endDate, categoryId, statusFilter, page],
@@ -111,9 +123,8 @@ export const IncomeList: React.FC = () => {
     });
   };
 
-  const getCategoryName = (id: string) => {
-    const cat = categories.find((c: any) => c.income_category_id === id);
-    return cat ? cat.name : "Uncategorized";
+  const getCategory = (id: string) => {
+    return categories.find((c: any) => c.income_category_id === id);
   };
 
   const totalPages = incomesData ? Math.ceil(incomesData.total_count / limit) : 0;
@@ -176,8 +187,10 @@ export const IncomeList: React.FC = () => {
       {/* Incomes Table */}
       <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="p-4 space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-md" />
+            ))}
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
@@ -192,6 +205,7 @@ export const IncomeList: React.FC = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Payment Method</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -210,9 +224,44 @@ export const IncomeList: React.FC = () => {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell>{getCategoryName(income.income_category_id)}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const cat = getCategory(income.income_category_id);
+                        if (!cat) return <span className="text-muted-foreground">Uncategorized</span>;
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="flex items-center justify-center w-6 h-6 rounded-full border border-border shrink-0"
+                              style={{ backgroundColor: `${cat.color_hex || '#00668b'}20`, color: cat.color_hex || "currentColor", borderColor: cat.color_hex || "var(--border)" }}
+                            >
+                              <IconRenderer name={cat.icon} className="w-3.5 h-3.5" />
+                            </div>
+                            <span>{cat.name}</span>
+                          </div>
+                        );
+                      })()}
+                    </TableCell>
                     <TableCell className="text-success font-bold whitespace-nowrap">
                       $ {parseFloat(income.amount).toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                      {(() => {
+                        const pm = getPaymentMethod(income.payment_method_id);
+                        if (!pm) return <span className="text-muted-foreground">-</span>;
+                        return (
+                          <div className="flex items-center gap-3">
+                            {pm.icon && pm.icon.endsWith('.png') ? (
+                              <img src={`/payment-method-logos/${pm.icon}`} alt="" className="w-6 h-6 object-contain shrink-0 rounded-full ring-1 ring-border bg-white" />
+                            ) : null}
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium leading-none">{pm.name}</span>
+                              <span className="text-[11px] text-muted-foreground capitalize mt-1">
+                                {pm.type.replace("_", " ").toLowerCase()}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${income.status === "RECEIVED" ? "bg-success/20 text-success" : "bg-info/20 text-info-foreground"}`}>

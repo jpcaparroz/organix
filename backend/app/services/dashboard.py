@@ -8,7 +8,14 @@ from app.models.incomes import IncomeStatus
 from app.repositories.expense import ExpenseRepository
 from app.repositories.income import IncomeRepository
 from app.repositories.expense_category import ExpenseCategoryRepository
-from app.schemas.dashboard import DashboardSummary, CategoryShare, ExpensesByCategoryResponse
+from app.schemas.dashboard import (
+    DashboardSummary,
+    CategoryShare,
+    ExpensesByCategoryResponse,
+    ExpensesByMonthCategoryResponse,
+    MonthData,
+    CategoryMonthlyShare
+)
 
 
 def get_month_range(year: int, month: int):
@@ -113,3 +120,51 @@ class DashboardService:
         items.sort(key=lambda x: x.amount, reverse=True)
 
         return ExpensesByCategoryResponse(items=items)
+
+    async def get_expenses_by_month_category(
+        self, user_id: uuid.UUID, year: int
+    ) -> ExpensesByMonthCategoryResponse:
+        start_date = datetime.date(year, 1, 1)
+        end_date = datetime.date(year, 12, 31)
+
+        expenses = await self.expense_repo.get_by_date_range(
+            user_id=user_id,
+            start_date=start_date,
+            end_date=end_date,
+            limit=100000,
+        )
+
+        categories_list = await self.category_repo.get_multi(user_id=user_id, limit=10000)
+        category_map = {cat.expense_category_id: cat for cat in categories_list}
+
+        monthly_grouped: Dict[int, Dict[uuid.UUID, decimal.Decimal]] = {m: {} for m in range(1, 13)}
+        for exp in expenses:
+            m = exp.date.month
+            cat_id = exp.expense_category_id
+            monthly_grouped[m][cat_id] = monthly_grouped[m].get(cat_id, decimal.Decimal("0.00")) + exp.amount
+
+        pt_months = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+
+        items: List[MonthData] = []
+        for m in range(1, 13):
+            cat_list: List[CategoryMonthlyShare] = []
+            for cid, amount in monthly_grouped[m].items():
+                cat = category_map.get(cid)
+                cat_list.append(CategoryMonthlyShare(
+                    category_id=str(cid),
+                    category_name=cat.name if cat else "Unknown Category",
+                    color_hex=cat.color_hex if cat else None,
+                    amount=amount
+                ))
+            
+            # Optionally sort categories by amount descending within the month
+            cat_list.sort(key=lambda x: x.amount, reverse=True)
+
+            items.append(MonthData(
+                month=m,
+                year=year,
+                month_label=pt_months[m - 1],
+                categories=cat_list
+            ))
+
+        return ExpensesByMonthCategoryResponse(items=items)

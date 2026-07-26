@@ -22,6 +22,10 @@ export const settingsApi = {
     const response = await apiClient.post("/categories/expenses", payload);
     return response.data;
   },
+  updateExpenseCategory: async ({ id, payload }: { id: string; payload: CategoryPayload }) => {
+    const response = await apiClient.patch(`/categories/expenses/${id}`, payload);
+    return response.data;
+  },
   deleteExpenseCategory: async (id: string) => {
     await apiClient.delete(`/categories/expenses/${id}`);
   },
@@ -35,6 +39,10 @@ export const settingsApi = {
     const response = await apiClient.post("/categories/incomes", payload);
     return response.data;
   },
+  updateIncomeCategory: async ({ id, payload }: { id: string; payload: CategoryPayload }) => {
+    const response = await apiClient.patch(`/categories/incomes/${id}`, payload);
+    return response.data;
+  },
   deleteIncomeCategory: async (id: string) => {
     await apiClient.delete(`/categories/incomes/${id}`);
   },
@@ -46,6 +54,10 @@ export const settingsApi = {
   },
   createPaymentMethod: async (payload: PaymentMethodPayload) => {
     const response = await apiClient.post("/payment-methods", payload);
+    return response.data;
+  },
+  updatePaymentMethod: async ({ id, payload }: { id: string; payload: PaymentMethodPayload }) => {
+    const response = await apiClient.patch(`/payment-methods/${id}`, payload);
     return response.data;
   },
   deletePaymentMethod: async (id: string) => {

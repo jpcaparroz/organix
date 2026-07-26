@@ -14,4 +14,12 @@ export const dashboardApi = {
     });
     return response.data; // returns { items: CategoryShare[] }
   },
+
+  getExpensesByMonthCategory: async (year: number) => {
+    const response = await apiClient.get("/dashboard/expenses-by-month-category", {
+      params: { year },
+    });
+    return response.data; // returns { items: MonthData[] }
+  },
 };
+

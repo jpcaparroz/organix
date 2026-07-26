@@ -17,6 +17,7 @@ class User(SQLModel, table=True):
     password_hash: str = Field(nullable=False)
     name: str = Field(nullable=False)
     icon: Optional[str] = Field(default=None, nullable=True)
+    monthly_budget: Optional[float] = Field(default=None, nullable=True)
     is_active: bool = Field(default=True, nullable=False)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None),

@@ -21,3 +21,21 @@ class CategoryShare(BaseModel):
 
 class ExpensesByCategoryResponse(BaseModel):
     items: List[CategoryShare]
+
+
+class CategoryMonthlyShare(BaseModel):
+    category_id: str
+    category_name: str
+    color_hex: Optional[str] = None
+    amount: decimal.Decimal
+
+
+class MonthData(BaseModel):
+    month: int
+    year: int
+    month_label: str
+    categories: List[CategoryMonthlyShare]
+
+
+class ExpensesByMonthCategoryResponse(BaseModel):
+    items: List[MonthData]

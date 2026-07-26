@@ -4,9 +4,12 @@ import { useGlobalStore } from "../../../store/globalStore";
 import { dashboardApi } from "../api/dashboard";
 import { SummaryCards } from "./SummaryCards";
 import { ExpenseChart } from "./ExpenseChart";
+import { StackedExpensesChart } from "./StackedExpensesChart";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
 import { MonthPicker } from "../../../components/ui/month-picker";
 import { Loader2, Calendar, ChevronDown } from "lucide-react";
+
+import { Skeleton } from "../../../components/ui/skeleton";
 
 const PT_MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -35,9 +38,12 @@ export const Dashboard: React.FC = () => {
     queryFn: () => dashboardApi.getSummary(prevYear, prevMonth),
   });
 
+  const { data: monthlyChartData, isLoading: loadingMonthlyChart } = useQuery({
+    queryKey: ["dashboard_expenses_by_month_category", year],
+    queryFn: () => dashboardApi.getExpensesByMonthCategory(year),
+  });
 
-
-  const isLoading = loadingSummary || loadingChart || loadingPrevSummary;
+  const isLoading = loadingSummary || loadingChart || loadingPrevSummary || loadingMonthlyChart;
 
   return (
     <div className="space-y-6">
@@ -62,16 +68,37 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-7 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+              </div>
+            </div>
+            <div className="md:col-span-5">
+              <Skeleton className="h-[300px] w-full rounded-xl" />
+            </div>
+          </div>
+          <div className="w-full">
+            <Skeleton className="h-[400px] w-full rounded-xl" />
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-7 space-y-6">
-            {summary && <SummaryCards summary={summary} prevSummary={prevSummary} />}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="md:col-span-7 space-y-6">
+              {summary && <SummaryCards summary={summary} prevSummary={prevSummary} />}
+            </div>
+            <div className="md:col-span-5">
+              {chartData && <ExpenseChart chartData={chartData} />}
+            </div>
           </div>
-          <div className="md:col-span-5">
-            {chartData && <ExpenseChart chartData={chartData} />}
+          
+          <div className="w-full">
+            {monthlyChartData && <StackedExpensesChart chartData={monthlyChartData} />}
           </div>
         </div>
       )}
